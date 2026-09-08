@@ -1,6 +1,6 @@
 {{- if eq .Values.deployAs "Deployment" }}
 # Real-K8s mode: same pod spec as pod.yaml, wrapped in a Deployment with
-# replicas: 1 and the podman `emptyDir.path` extension dropped (see
+# configurable replicas and an emptyDir instead of the Pod hostPath (see
 # _podspec.tpl). No hostPorts here — expose your own Service/Ingress as needed.
 apiVersion: apps/v1
 kind: Deployment

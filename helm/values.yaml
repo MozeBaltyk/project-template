@@ -1,6 +1,6 @@
 ## Render/Deploy target. `Pod` (default) keeps `podman play kube --replace`/`--down`
 ## working by a stable pod name; `Deployment` targets a real Kubernetes cluster
-## (adds replicas/selector and drops the podman `emptyDir.path` extension).
+## (adds replicas/selector and uses a plain emptyDir instead of a hostPath mount).
 deployAs: Pod
 
 ## Replica count — Deployment mode only.
@@ -20,9 +20,12 @@ command:
 
 ## Project workspace mounted at /workspace inside the pod (the whole repo, so
 ## `just` and `scripts/` are available). In Pod mode the host path (repo root)
-## is used via the podman `emptyDir.path` extension; in Deployment mode it is a
-## plain emptyDir — provide the project via a PVC/ConfigMap, or COPY it into the
-## image, on a real cluster.
+## is mounted via hostPath; in Deployment mode it is a plain emptyDir — provide
+## an init container to populate that volume, or customize the template to mount
+## a populated PVC/ConfigMap. COPY to /workspace in the image is hidden by the mount.
 workspace:
-  hostPath: .
+  # Absolute host path mounted at /workspace in Pod mode (manage.sh overrides
+  # this with the resolved repo root). Must contain a leading "/" — Podman treats
+  # a value without one as a named volume, not a bind mount.
+  hostPath: ""
   mountPath: /workspace

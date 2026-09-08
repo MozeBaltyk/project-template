@@ -44,12 +44,14 @@ push() {
 # Render the Helm chart and feed it to podman play kube (KUBEFILE|-).
 kube_play() {
     resolve_knobs
-    # emptyDir.path in the chart is relative to the project root.
     cd "${ROOT}"
+    # workspace.hostPath must be an absolute filesystem path: Podman treats a
+    # hostPath value with no leading slash as a named volume, not a bind mount.
     helm template "${RELEASE_NAME}" "${CHART}" \
         --set "image.repository=${IMAGE_REPO}" \
         --set "image.tag=${IMAGE_TAG}" \
         --set "image.pullPolicy=${IMAGE_PULL_POLICY}" \
+        --set "workspace.hostPath=${ROOT}" \
         | sudo podman play kube "$@" -
 }
 
